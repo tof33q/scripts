@@ -1,0 +1,78 @@
+<?php 
+
+ini_set('display_errors', 'on');
+error_reporting(E_ALL);
+
+ob_end_clean();
+
+$excludes = array(".zip", '.log', __DIR__ . "/uploads", __DIR__ . '/library',  __DIR__ .  "/nppBackup", __DIR__ .  "/transport", __DIR__ .  "/backupcode", __DIR__ . "/cgi-bin" );
+
+ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+$path = __DIR__;
+// Get real path for our folder
+$rootPath = realpath($path);
+
+
+ 
+//print_r($excludes);
+// Initialize archive object
+$zip = new ZipArchive();
+$zip->open('file.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+// Create recursive directory iterator
+/** @var SplFileInfo[] $files */
+$files = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($rootPath),
+    RecursiveIteratorIterator::LEAVES_ONLY
+);
+
+foreach ($files as $name => $file)
+{
+      if ($file == '.' or $file == "..") 
+      		continue;
+	  $fileinfo = pathinfo($file->getRealPath());
+	
+	  $ignore = false;
+	  foreach ($excludes as $regex) {
+	  	 
+		  if (strpos($fileinfo['dirname'], $regex) !== false) {
+		  	//echo "matched $regex : {$fileinfo['dirname']}";
+			 $ignore = true;	
+			 break;
+		 }
+	 }
+	
+
+	if ($ignore) {
+		//echo "\n <br> Ignoring: $file";		
+			continue;
+	} 
+	 
+    if (isset($fileinfo['extension']))	 {
+    	 
+	    if (in_array("." . $fileinfo['extension'], $excludes ))  {
+	    	//echo "\n <br> Ignoring: $file";	
+    		continue;
+    	}
+    }
+    		
+    //echo "\n <br> Adding: $file";	
+    
+    // Skip directories (they would be added automatically)
+    if (!$file->isDir())
+    {
+        // Get real and relative path for current file
+        $filePath = $file->getRealPath();
+        $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+        // Add current file to archive
+        $zip->addFile($filePath, $relativePath);
+    }
+}
+
+// Zip archive will be created only after closing object
+$zip->close();
+
+header("HTTP/1.1 303 See Other"); // 303 is technically correct for this type of redirect
+header("Location: file.zip");
+exit;
