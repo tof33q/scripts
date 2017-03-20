@@ -6,7 +6,10 @@ error_reporting(E_ALL);
 $errors = '';
 ob_end_clean();
 
-$excludes = array(".zip", '.log', '.php~', '.mp4', '.css~', '.js~',  'error_log', __DIR__ . "wp-content/uploads/", 'wp-content/themes/amgoals/videolib/input/',  __DIR__ .  "/nppBackup", 'wp-content/themes/amgoals/videolib/output/', 'wp-content/themes/amgoals/videolib/user_videos/', 'wp-content/themes/amgoals/videolib/tmp/');
+$excludes = array(".zip", '.log', '.php~', '.mp4', '.css~', '.js~',  'error_log',
+        __DIR__ . "/uploads/",
+        __DIR__ . "/cache/"
+    );
 
 $logfile = fopen('zipper.log', 'w');
 
