@@ -10,6 +10,10 @@ $url = rawurldecode($_GET['url']);
 if ($fp = fopen($url, 'rb')) {
     
     $file = fopen($_GET['file'], 'w');
+    if (!$file) {
+        die("file '{$_GET['file']}' can't be created, check permissions or file path");
+    }
+
     $lines = 0;
     $bits = 0;
  
@@ -26,11 +30,11 @@ if ($fp = fopen($url, 'rb')) {
         $mb = ($bits / 1024) . 'Kb'; 
     }
     
-    echo "<p>No of lines : $lines</p>
+    echo "<p>No of lines written : $lines</p>
         <p>filesize: $mb </p>
     ";
     fclose($file);
     
 } else {
-    echo 'error';
+    echo "error :  url can't be opened";
 }
