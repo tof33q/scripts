@@ -1,0 +1,41 @@
+var iDB
+var IDB_NAME = 'dim-pos'
+var IDB_VERSION = 6
+var LOG_DOCUMENT = 'log'
+var findkey = {
+    field: 'event_time',
+    value: "2021-10-05 13:12:56"
+}
+var indexedDBOpenRequest = indexedDB.open(IDB_NAME, IDB_VERSION)
+
+indexedDBOpenRequest.onerror = function(error) {
+	console.error('IndexedDB open error:', error)
+}
+
+indexedDBOpenRequest.onsuccess = function() {
+	console.log('opened successfully')
+	iDB = this.result
+	
+	var savedRequests = []
+	var req = iDB.transaction(LOG_DOCUMENT).objectStore(LOG_DOCUMENT).openCursor()
+	console.log(req)
+
+	req.onsuccess = async function(event) {
+	  console.log('successfully opened document')
+	  var cursor = event.target.result
+	  if (cursor) {
+	    if (findkey) {
+           let row = cursor.value
+           console.log(row[findkey['field']], findkey['value'])
+           if (row[findkey['field']] == findkey['value']) {
+                savedRequests.push(cursor.value)     
+           }
+	    } else {
+		  savedRequests.push(cursor.value)
+	    }
+		cursor.continue()
+	  } else {
+	  	console.log('saved requests', savedRequests)
+	  }
+	}
+}
