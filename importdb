@@ -1,0 +1,22 @@
+var iDB
+var IDB_NAME = 'goorder'
+var IDB_VERSION = 1
+var DOCUMENT = 'store'
+
+var indexedDBOpenRequest = indexedDB.open(IDB_NAME, IDB_VERSION)
+
+indexedDBOpenRequest.onerror = function(error) {
+	console.error('IndexedDB open error:', error)
+}
+
+indexedDBOpenRequest.onsuccess = function() {
+	console.log('opened successfully')
+	iDB = this.result
+	
+	var bucket = iDB.transaction(DOCUMENT, 'readwrite').objectStore(DOCUMENT)
+	for (let row of data) {
+	  console.log(row)
+	  transaction = bucket.add(row)
+	}
+}
+
